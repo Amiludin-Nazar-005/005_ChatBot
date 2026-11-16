@@ -1,5 +1,5 @@
-const express = require('express');
-const dotenv = require('dotenv');
+const express = require("express");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
@@ -7,33 +7,40 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-app.get('/', (req, res) => {
-    res.sendFile("/index.html");
-    });
+app.get("/", (req, res) => {
+  res.redirect("/index.html");
+});
 
-app.post('/api/data', (req, res) => {
-    try {
-        const mesage = req.body.message;
+app.post("/api/chat", async (req, res) => {
+  try {
+    const messages = req.body.messages;
 
-        if (!mesage || !Array.isArray(mesage)) {
-            return res.status(400).json({ error: 'Message is required' });
-        }
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({
+        error: "Messages harus berupa array",
+      });
     }
-});
 
-const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    },
-    body: JSON.stringify({
-        model:"inclusionai/ling-3.2-flash:free",
-        messages: mesage,
-        temperature: 0.7,
-        max_tokens: 1000,
-        stream: true
-    }),
-});
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        },
+
+        body: JSON.stringify({
+          model: "nvidia/nemotron-3.5-super-vl:free",
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          stream: true,
+        }),
+      },
+    );
+
+    
